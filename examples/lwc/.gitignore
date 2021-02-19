@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 # This file is used for Git repositories to specify intentionally untracked files that Git should ignore. 
 # If you are not using git, you can delete this file. For more information see: https://git-scm.com/docs/gitignore
 # For useful gitignore templates see: https://github.com/github/gitignore
@@ -6,15 +5,6 @@
 # Salesforce cache
 .sfdx/
 .localdevserver/
-
-# LWC VSCode autocomplete
-**/lwc/jsconfig.json
-
-# LWC Jest coverage reports
-coverage/
-
-# SOQL Query Results
-**/scripts/soql/query-results
 
 # Logs
 logs
@@ -37,8 +27,10 @@ Thumbs.db
 ehthumbs.db
 [Dd]esktop.ini
 $RECYCLE.BIN/
-=======
-.sfdx
-sfdx/force-app
-.DS_Store
->>>>>>> b8a34565d394a2b4460cee0bc587b2c720e87842
+
+## Jest Folders
+jest-report
+coverage
+
+## VS Code
+.vscode
