@@ -1,0 +1,6 @@
+<aura:documentation>
+    <aura:description>
+        <p><code>c:PMT_GenLookup</code> is a reusable component created to show a custom lookup dropdown based on the object name and field name.</p>
+        
+    </aura:description>    
+</aura:documentation>

@@ -1,0 +1,14 @@
+/*
+@license
+
+dhtmlxGantt v.4.0.0 Professional Evaluation
+This software is covered by DHTMLX Evaluation License. Contact sales@dhtmlx.com to get Commercial or Enterprise license. Usage without proper license is prohibited.
+
+(c) Dinamenta, UAB.
+*/
+Gantt.plugin(function(t){t.config.highlight_critical_path=!1,t._criticalPathHandler=function(){t.config.highlight_critical_path&&t.render()},t.attachEvent("onAfterLinkAdd",t._criticalPathHandler),t.attachEvent("onAfterLinkUpdate",t._criticalPathHandler),t.attachEvent("onAfterLinkDelete",t._criticalPathHandler),t.attachEvent("onAfterTaskAdd",t._criticalPathHandler),t.attachEvent("onAfterTaskUpdate",t._criticalPathHandler),t.attachEvent("onAfterTaskDelete",t._criticalPathHandler),t.isCriticalTask=function(t){
+if(t){var e=arguments[1]||{};if(this._isTask(t)){if(this._isProjectEnd(t))return!0;e[t.id]=!0;for(var a=this._getSuccessors(t),i=0;i<a.length;i++){var n=this.getTask(a[i].task);if(this._getSlack(t,n,a[i].link,a[i].lag)<=0&&!e[n.id]&&this.isCriticalTask(n,e))return!0}}return!1}},t.isCriticalLink=function(e){return this.isCriticalTask(t.getTask(e.source))},t.getSlack=function(t,e){for(var a=[],i={},n=0;n<t.$source.length;n++)i[t.$source[n]]=!0;for(var n=0;n<e.$target.length;n++)i[e.$target[n]]&&a.push(e.$target[n]);
+for(var r=[],n=0;n<a.length;n++){var s=this.getLink(a[n]);r.push(this._getSlack(t,e,s.type,s.lag))}return Math.min.apply(Math,r)},t._getSlack=function(t,e,a,i){if(null===a)return 0;var n=null,r=null,s=this.config.links,u=this.config.types;n=a!=s.finish_to_finish&&a!=s.finish_to_start||this._get_safe_type(t.type)==u.milestone?t.start_date:t.end_date,r=a!=s.finish_to_finish&&a!=s.start_to_finish||this._get_safe_type(e.type)==u.milestone?e.start_date:e.end_date;var o=0;return o=+n>+r?-this.calculateDuration(r,n):this.calculateDuration(n,r),
+i&&1*i==i&&(o-=i),o},t._getProjectEnd=function(){var e=t.getTaskByTime();return e=e.sort(function(t,e){return+t.end_date>+e.end_date?1:-1}),e.length?e[e.length-1].end_date:null},t._isProjectEnd=function(t){return!this._hasDuration(t.end_date,this._getProjectEnd())},t._formatSuccessors=function(t,e){for(var a=[],i=0;i<t.length;i++)a.push(this._formatSuccessor(t[i],e));return a},t._formatSuccessor=function(t,e){return{task:t,link:e.type,lag:e.lag}},t._getSuccessors=function(e){var a=[];if(t._isProject(e))a=a.concat(t._formatSuccessors(this.getChildren(e.id),null));else for(var i=e.$source,n=0;n<i.length;n++){
+var r=this.getLink(i[n]);if(this.isTaskExists(r.target)){var s=this.getTask(r.target);this._isTask(s)?a.push(t._formatSuccessor(r.target,r)):a=a.concat(t._formatSuccessors(this.getChildren(s.id),r))}}return a}});
+//# sourceMappingURL=../sources/ext/dhtmlxgantt_critical_path.js.map

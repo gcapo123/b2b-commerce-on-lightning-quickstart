@@ -1,0 +1,82 @@
+<template>
+    <div class={flexipageRegionWidth}>
+        <h3>Availability Calendar</h3>
+        <br/>
+        <template if:true={showInventoryMessage}>
+            <div>
+                <p class="info-message">The product is not available in the current availability window but you can pre-order it for the next one.</p>
+                <br/>
+                <template if:true={showNotifyButton}>
+                    <lightning-button variant="brand" label="Notify me when it becomes available" title="Primary action" onclick={notifyRegistration} class="slds-m-left_x-small"></lightning-button>
+                </template> 
+            </div>
+            <br/>
+        </template>
+        <table class="slds-table slds-table_cell-buffer slds-table_bordered">
+            <thead>
+                <tr class="slds-line-height_reset">
+                    <th class="" scope="col">
+                        <div class="slds-truncate" title="Window Start Date">Window Start Date</div>
+                    </th>
+                    <th class="" scope="col">
+                        <div class="slds-truncate" title="Window End Date">Window End Date</div>
+                    </th>
+                    <th class="" scope="col">
+                        <div class="slds-truncate" title="Qty Available">Qty Available</div>
+                    </th>
+                    <th class="" scope="col">
+                        <div class="slds-truncate" title="Order">Order</div>
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                <template for:each={inventorySchedules} for:item="inventorySchedule" for:index="idx">
+                    <tr class="slds-hint-parent" key={inventorySchedule.Id}>
+                        <td data-label="Window Start Date">
+                            <div class="slds-truncate" title="">{inventorySchedule.Availability_Window_Start__c}</div>
+                        </td>
+                        <td data-label="Window End Date">
+                            <div class="slds-truncate" title="">{inventorySchedule.Availability_Window_End__c}</div>
+                        </td>
+                        <td data-label="Qty Available">
+                            <div class="slds-truncate" title="">{inventorySchedule.Quantity_Available__c}</div>
+                        </td>
+                        <td data-label="Order">
+                            <div class="slds-truncate" title="">{inventorySchedule.orderStatus}</div>
+                        </td>
+                    </tr>
+                </template>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Notify Confirmation modal -->
+    <template if:true={isModalOpen}>
+        <section role="dialog" tabindex="-1" aria-labelledby="modal-heading-01" aria-modal="true" aria-describedby="modal-content-id-1" class="slds-modal slds-fade-in-open">
+            <div class="slds-modal__container">
+                <!-- Modal/Popup Box LWC header -->
+                <header class="slds-modal__header">
+                    <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse" title="Close" onclick={closeModal}>
+                        <lightning-icon icon-name="utility:close"
+                            alternative-text="close"
+                            variant="inverse"
+                            size="small" ></lightning-icon>
+                        <span class="slds-assistive-text">Close</span>
+                    </button>
+                    <h2 id="modal-heading-01" class="slds-text-heading_medium slds-hyphenate">Availability Notify Registration</h2>
+                </header>
+                <!-- Modal/Popup Box LWC body -->
+                <div class="slds-modal__content slds-p-around_medium" id="modal-content-id-1">
+                    <p>Your registration on this product has been activated.</p>
+                    <p>You will receive an email to <b>{userEmail}</b> as soon as the product becomes available.</p>
+                </div>
+                <!-- Modal/Popup Box LWC footer  -->
+                <footer class="slds-modal__footer">
+                    <button class="slds-button slds-button_brand" onclick={closeModal} title="OK">OK</button>
+                </footer>
+            </div>
+        </section>
+        <div class="slds-backdrop slds-backdrop_open"></div>
+    </template>
+
+</template>

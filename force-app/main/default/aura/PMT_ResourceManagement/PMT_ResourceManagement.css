@@ -1,0 +1,9 @@
+.THIS .greenBorder{
+	border: 3px solid green;    
+}
+.THIS .yellowBorder{
+    border: 3px solid yellow;
+}
+.THIS .redBorder{
+    border: 3px solid red;
+}

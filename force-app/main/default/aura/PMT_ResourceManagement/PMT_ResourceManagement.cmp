@@ -1,0 +1,150 @@
+<aura:component implements="force:appHostable" access="global" controller="PMT_ResourceManagementCtrl">
+    <aura:attribute name="ResourceAvailability" type="Object" description="resource availability list" />
+    <aura:attribute name="ResourceAvailabilityBKP" type="Object" description="resource availability list" />
+    <aura:attribute name="monthNames" type="String[]" description="month names for report"/>
+                    
+    <aura:attribute name="departmentList" type="List" description="to store list of departments for filter"/>
+    <aura:attribute name="periodValues" type="String[]" default="" description="period values"/>
+    <aura:attribute name="periodSelected" type="String" default="" description="period selected"/>
+    <aura:attribute Name="managerSelected" type="object"  access="public" description="manager selected" /> 
+    <aura:attribute Name="managerId" type="Id" access="public" description="manager id of the selected" />
+    <aura:attribute name="isLoading" type="Boolean" description="Flag if there is apex side call runnning" default="false"/>
+    <aura:attribute name="capacitySelected" type="String" default="Availability" description="capacity selected"/>
+                    
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}" /> 
+    
+    <!-- Spinner -->
+    <aura:if isTrue="{!v.isLoading}">
+        <lightning:spinner alternativeText="Loading" size="large" />
+    </aura:if>
+    
+    <aura:handler
+                  name="change"
+                  value="{!v.managerSelected}"
+                  action="{!c.updateManagerId}"
+                  />
+    
+    <div class="slds-box slds-card__body--inner slds-card-wrapper">
+        <lightning:layout class="slds-p-bottom--large">
+            <lightning:layoutItem flexibility="grow" padding="horizontal-small">
+                <lightning:select
+                                  aura:id="period"
+                                  value="{!v.periodSelected}"
+                                  label="Period"
+                                  onchange="{!c.onPeriodFilterChange}"
+                                  >
+                    <aura:iteration items="{!v.periodValues}" var="periodVar">
+                        <option value="{!periodVar}">{!periodVar}</option>
+                    </aura:iteration>
+                </lightning:select>
+            </lightning:layoutItem>
+            <lightning:layoutItem flexibility="grow" padding="horizontal-small">
+                <lightning:select
+                                  value="{!v.capacitySelected}"
+                                  label="Show Capacity By"
+                                  >
+                    <option value="Total Capacity">Total Capacity</option>
+                    <option value="Availability">Availability</option>
+                    <option value="Allocation">Allocation</option>
+                </lightning:select>
+            </lightning:layoutItem>
+            <lightning:layoutItem flexibility="grow" padding="horizontal-small">
+                <lightning:select
+                                  aura:id="PMTDepartment"
+                                  label="Function"
+                                  onchange="{!c.handleDeptChange}"
+                                  >
+                    <option value="">--None--</option>
+                    <option value="All">All</option>
+                    <aura:iteration items="{!v.departmentList}" var="dept">
+                        <option value="{!dept}">{!dept}</option>
+                    </aura:iteration>
+                </lightning:select>
+            </lightning:layoutItem>
+            <lightning:layoutItem flexibility="grow" padding="horizontal-small">
+                <span class="slds-form-element__label">Search by Manager</span>
+                <c:PMT_GenLookup objectName="User"
+                                 field_API_text="Name"
+                                 field_API_val="Id"
+                                 limit="4"
+                                 field_API_search="Name"
+                                 lookupIcon="standard:user" 
+                                 selItem="{!v.managerSelected}" 
+                                 placeholder="Enter space after text to search Users"
+                                 />
+            </lightning:layoutItem>
+            <lightning:layoutItem flexibility="grow" padding="horizontal-small" class="slds-align_absolute-center">
+                <lightning:button class="refreshButton" variant="neutral" label="Refresh" iconName="utility:refresh" onclick="{!c.doInit}"/>
+            </lightning:layoutItem>
+        </lightning:layout>
+
+        <!--Table-->
+        <aura:if isTrue="{!not(empty(v.ResourceAvailability))}">
+            <table
+                   class="slds-table slds-table_cell-buffer slds-table_bordered slds-table_col-bordered"
+                   >
+                <thead>
+                    <tr class="slds-line-height_reset">
+                        <th class="" scope="col">
+                            <div class="slds-truncate" title="">Resource Name</div>
+                        </th>
+                        <aura:iteration items="{!v.monthNames}" var="month">
+                            <th class="" scope="col">
+                                <div class="slds-truncate" title="">
+                                    <lightning:formattedRichText value="{!month + ' %'}" />
+                                </div>
+                            </th>
+                        </aura:iteration>
+                    </tr>
+                </thead>
+                <tbody>
+                    <aura:iteration items="{!v.ResourceAvailability}"
+                                    var="resourceAvailabilityVar">
+                        <aura:if isTrue="{!or(empty(v.managerId), and(not(empty(v.managerId)), resourceAvailabilityVar.User__r.ManagerId == v.managerId))}">
+                            <aura:if isTrue="{!v.capacitySelected == 'Total Capacity'}">
+                                <tr class="slds-hint-parent">
+                                    <th scope="row">
+                                        <c:PMT_GenRecordRedirectionLink label="{!resourceAvailabilityVar.User__r.Name}" recordId="{!resourceAvailabilityVar.Id}"/>
+                                    </th>
+                                    <aura:iteration items="{!resourceAvailabilityVar.capacities}" var="capacity">
+                                    	<th scope="row"> {!capacity +'%'} </th>
+                                    </aura:iteration>
+                                </tr>
+                            </aura:if>
+                            <aura:if isTrue="{!v.capacitySelected == 'Availability'}">
+                                <tr class="slds-hint-parent">
+                                    <th scope="row">
+                                        <c:PMT_GenRecordRedirectionLink label="{!resourceAvailabilityVar.User__r.Name}" recordId="{!resourceAvailabilityVar.Id}"/>
+                                    </th>
+                                    <aura:iteration items="{!resourceAvailabilityVar.availabilities}" var="availability">
+                                    	<th
+                                        scope="row"
+                                        class="{!if(availability&lt;0,'redBorder',if(availability&lt;15,'yellowBorder',''))}">
+                                            {!availability +'%'}
+                                        </th>
+                                    </aura:iteration>
+                                </tr>
+                            </aura:if>
+                            <aura:if isTrue="{!v.capacitySelected == 'Allocation'}">
+                                <tr class="slds-hint-parent">
+                                    <th scope="row">
+                                        <c:PMT_GenRecordRedirectionLink label="{!resourceAvailabilityVar.User__r.Name}" recordId="{!resourceAvailabilityVar.Id}"/>
+                                    </th>
+                                    <aura:iteration items="{!resourceAvailabilityVar.allocations}" var="allocation">
+                                        <th
+                                            scope="row"
+                                            class="{!if(allocation&gt;100,'redBorder',if(and(allocation&gt;80, allocation&lt;100),'yellowBorder',''))}"
+                                            >
+                                            {!allocation +'%'}
+                                        </th>
+                                    </aura:iteration>
+                                </tr>
+                            </aura:if>
+                        </aura:if>
+                    </aura:iteration>
+                </tbody>
+            </table>
+            <aura:set attribute="else"> <center>No data found.</center> </aura:set>
+        </aura:if>
+    </div>
+</aura:component>

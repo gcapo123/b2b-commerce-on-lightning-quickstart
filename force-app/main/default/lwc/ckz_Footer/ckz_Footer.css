@@ -1,0 +1,86 @@
+/******************************************************
+ * FOOTER STYLES
+ *******************************************************/
+
+.ckz_footer {
+  /* padding: 20px; */
+  border-top: 5px solid;
+  border-color: var(--lwc-colorBrand);
+  /* border-color: #006341; */
+  /* background-color: #382f2d; */
+  /* color: #c3c3c3; */
+  font-size: 12px;
+}
+
+.ckz_footer p {
+  color: #c3c3c3;
+}
+
+.ckz_footer .footer-link a {
+  color: #c3c3c3;
+}
+
+.ckz_footer .footer-link a:hover,
+.ckz_footer .footer-link a:focus {
+  color: #dfdfdf;
+  text-decoration: none;
+}
+
+.ckz_footer .footer-link a.social {
+  color: #000;
+}
+
+.ckz_footer .footer-link a.social:hover {
+  color: #353535;
+}
+
+.ckz_footer .footer-logo {
+  display: block;
+  overflow: hidden;
+  position: relative;
+  margin-bottom: 15px;
+  background-size: contain;
+  height: 50px;
+  width: 100%;
+}
+
+.ckz_footer h4 {
+  color: #fff;
+  font-size: 14px;
+}
+
+.ckz_footer ul {
+  list-style: none;
+  padding: 0;
+}
+
+.ckz_footer .footer-link-list {
+  -webkit-transition: all 0.2s ease-in-out;
+  transition: all 0.2s ease-in-out;
+}
+
+.ckz_footer .footer-link-list a:hover {
+  color: var(--lwc-colorBrand);
+}
+
+.ckz_footer ul li {
+  margin: 0 0 8px;
+}
+
+.ckz_footer .footer-builtOn {
+  display: inline-block;
+  vertical-align: middle;
+  margin-bottom: 5px;
+}
+
+.ckz_footer .footer-logo-commerceCloud {
+  display: inline-block;
+  overflow: hidden;
+  position: relative;
+  background: url(https://sfdc-ckz-b2b.s3.amazonaws.com/CKZ-POCS/Starbucks/b2b-commerce-logo.svg)
+    center no-repeat;
+  background-size: contain;
+  height: 70px;
+  width: 140px;
+  vertical-align: middle;
+}

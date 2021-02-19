@@ -1,0 +1,958 @@
+<apex:page id="ganttPage" sidebar="false" showHeader="{!$CurrentPage.parameters.showTab}" standardController="PMT_Project__c" docType="html-5.0" extensions="PMT_GanttPageController_forproject"  >
+  <apex:slds />  
+    <head>
+        <apex:includeScript value="{!URLFOR($Resource.jquery)}"/>
+        <apex:stylesheet value="{!URLFOR($Resource.dhtmlxGantt, 'codebase/dhtmlxgantt.css')}" />
+        <apex:includeScript value="{!URLFOR($Resource.dhtmlxGantt, 'codebase/dhtmlxgantt.js')}" />
+        <apex:includeScript value="{!URLFOR($Resource.dhtmlxGantt, 'codebase/ext/dhtmlxgantt_marker.js')}" />
+        <apex:includeScript value="{!URLFOR($Resource.dhtmlxGantt, 'codebase/ext/dhtmlxgantt_tooltip.js')}"/>
+        <apex:includeScript value="{!URLFOR($Resource.webixLibrary, 'codebase/webix_debug.js')}"/>
+        <apex:includeScript value="{!URLFOR($Resource.webixLibrary, 'codebase/kanban/kanban_debug.js')}"/>
+        <apex:includeScript value="{!URLFOR($Resource.colorbox, 'colorbox-master/jquery.colorbox-min.js')}" />
+        <apex:stylesheet value="{!URLFOR($Resource.webixLibrary, 'codebase/webix.css')}" />
+        <apex:stylesheet value="{!URLFOR($Resource.webixLibrary, 'codebase/kanban/kanban.css')}" />
+        <apex:stylesheet value="{!URLFOR($Resource.colorbox, 'colorbox-master/example1/colorbox.css')}" />
+        <apex:includeScript value="{!URLFOR($Resource.webixLibrary, 'samples/common/types.js')}" />
+        <apex:stylesheet value="{!URLFOR($Resource.webixLibrary, 'samples/common/style.css')}" />
+        <apex:stylesheet value="{!URLFOR($Resource.WebixDataViewCSS)}" />
+        
+        <script src="http://export.dhtmlx.com/gantt/api.js"></script>  
+        <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1/jquery-ui.min.js"></script>
+        <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1/i18n/jquery.ui.datepicker-ja.min.js"></script>
+        <link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1/themes/ui-lightness/jquery-ui.css" />
+       
+        <style type="text/css">
+            /**html, body{ height:100%; padding:0px; margin:0px; overflow: hidden;}**/
+            
+            .complex_gantt_bar{
+                background: transparent;
+                border:none;
+            }
+            .complex_gantt_bar .gantt_task_progress{
+                display:none;
+            }
+            
+            .deadline {
+                position: absolute;
+                border-radius: 12px;
+                border: 2px solid #585858;
+                -moz-box-sizing: border-box;
+                box-sizing: border-box;
+                width: 22px;
+                height: 22px;
+                margin-left: -11px;
+                margin-top: 6px;
+                z-index: 1;
+            }
+            
+            #loading_bg{
+                position: absolute;
+                -moz-opacity: 0;
+                opacity: 0.5;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background-color:lightgray;
+            }
+            .column_text{
+                max-width: 80% !important;
+                overflow: hidden !important;
+                text-overflow: ellipsis !important;
+                white-space: nowrap !important;
+            }
+            .gantt_task_content{
+            display:None!important;
+            }
+           
+        </style>
+    
+        
+        </head>
+    
+    <body>
+        <apex:form id="form">
+            <apex:pageMessages />
+           
+            <apex:outputPanel layout="none" rendered="{!(existProject)}" >
+                <div class="slds" >
+                    <div >
+                        <button type="button" class="slds-button slds-button--neutral" onclick="refresh();" style="margin-left: 93%;">Refresh</button>
+                    </div>
+                    
+                    <div id="scale" class="slds-size--12-of-12">
+                        <div class="slds-float--left">
+                            <div class="slds-form-element">
+                                <div style="display: flex;position: relative;">
+                                    <label style="margin: 8px;" class="slds-form-element__label slds-truncate" for="select-01">Scale</label>
+                                    <div class="slds-form-element__control">
+                                        <div class="slds-select_container">
+                                            <select  id="select-01" class="slds-select" onchange="changeScale(this.value);" >
+                                                <option value="year">Year scale</option>
+                                                <option value="quarter">Quarter scale</option>
+                                                <option value="month">Month scale</option>
+                                                <option value="week">Week scale</option>
+                                                <option value="day">Day scale</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                   
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                   
+                 
+                    <apex:outputPanel rendered="{!IF($CurrentPage.parameters.showTab=='false', true, false)}">
+                        <div class="slds-button-group slds-float--left slds-m-right--medium" role="group">                           
+                            <button type="button" class="slds-button slds-button--neutral" onclick="fullOpen();">Expand</button>
+                            <button type="button" class="slds-button slds-button--neutral" onclick="fullClose();">Aggregate</button>
+                        </div>
+                        
+                        <div class="slds-float--left slds-m-horizontal--small">
+                            <label class="slds-checkbox slds-grid slds-grid--vertical-align-center">
+                                <span class="slds-form-element__label slds-m-around--small">My Tasks</span>
+                                <input name="checkbox2" type="checkbox" onchange="displayMyTask();" />
+                                <span class="slds-checkbox--faux" data-check-on="On" data-check-off="Off"></span>
+                            </label>
+                        </div>
+                       
+                    </apex:outputPanel>
+                    
+                    <apex:outputPanel rendered="{!IF($CurrentPage.parameters.showTab=='', true, false)}">
+                        <div class="slds-m-bottom--medium" style="clear:both;"></div>
+                        <div class="slds-float--left" style="display: inline-block;">
+                            <div class="slds-button-group" role="group" style="margin:10px;">
+                               
+                                <button type="button" class="slds-button slds-button--neutral" onclick="fullOpen();">Expand</button>
+                                <button type="button" class="slds-button slds-button--neutral" onclick="fullClose();">Aggregate</button>
+                            </div>
+                        </div>
+                        
+                        <div class="slds-float--left slds-m-horizontal--small">
+                            <label class="slds-checkbox slds-grid slds-grid--vertical-align-center">
+                                <span class="slds-form-element__label slds-m-around--small">My Tasks</span>
+                                <input name="checkbox2" type="checkbox" onchange="displayMyTask();" />
+                                <span class="slds-checkbox--faux" data-check-on="On" data-check-off="Off"></span>
+                            </label>
+                        </div>
+                    </apex:outputPanel>
+                    
+                   
+                    
+                </div>
+            </apex:outputPanel>
+            
+            <div id="loading_bg" style="display:none; z-index:9999;">
+                <div style="display:table;height:100% !important;width:100%">
+                    <div style="display:table-cell;text-align:center;height: 100%;vertical-align:middle;">
+                        <apex:image id="loadingImage" value="/img/loading32.gif" />
+                    </div>
+                </div>
+            </div>
+            
+            <apex:outputPanel layout="none" rendered="{!(existProject)}" >
+                <!-- Gantt -->
+                <div id="gantt_here" style="clear:both;"/>
+            </apex:outputPanel>
+            
+            <apex:outputPanel layout="none" rendered="{!NOT(existProject)}">
+                <span style="font-size:23px; font-weight:bold;">No Phases and Tasks to Display!</span>
+            </apex:outputPanel>
+             <apex:actionFunction name="updTask" action="{!updateTask}" rerender="ganttDatas, saveResult" oncomplete="RedrawGantt();"> 
+                <apex:param name="param_taskId" value=""/>
+                <apex:param name="param_startDate" value=""/>
+                <apex:param name="param_duration" value=""/>
+            </apex:actionFunction>
+            
+            <apex:inputHidden id="ganttDatas" value="{!datas}" />
+            
+            <apex:inputHidden id="saveResult" value="{!saveResult}" />
+            <apex:inputHidden id="searchOption" value="{!searchs}" />
+        </apex:form>
+        
+        <script type="text/javascript" charset="utf-8">
+           
+            // use to set startDate/endDate of Gantt
+            var minDt = null;
+            var maxDt = null;
+            var defaultMinDate = null;
+            var defaultMaxDate = null;
+            
+            // input value of start date & end date
+            var sDtInputVal = null;
+            var eDtInputVal = null;
+            
+            var searchOption = JSON.parse('{!searchs}');            
+           
+            var isMyTask = false;
+            
+            var isOptionSave = false;
+            var myTaskList = [];
+            
+            var currentUserId;            
+            var selected_task = null;
+            
+            var scroll_state = null;
+            
+            var tasks =  {
+               
+                data:{!datas}
+            };
+
+            var openMap = {};
+            var filter_status = false;
+            
+            var dispPhaseMap = new Map();
+            var dispPrjMap = new Map();
+           
+            $(document).ready(function(){               
+                
+                $(".datepicker").datepicker();
+                var date_to_str = gantt.date.date_to_str(gantt.config.task_date);
+ 
+                var id = gantt.addMarker({ start_date: new Date(), css: "today",text: "Today", title:date_to_str( new Date())});
+                setInterval(function(){
+                    var today = gantt.getMarker(id);
+                    today.start_date = new Date();
+                    today.title = date_to_str(today.start_date);
+                    gantt.updateMarker(id);
+                }, 1000*60);
+                
+                /**Default search option setting (SaveSearchOptions = true) START
+                    → Always save the search condition by specification change **/
+                
+                if (searchOption.searchStatus || !searchOption.searchStatus) {
+                  
+                     // Save Search Options
+                    var daysBetween = parseInt('{!daysBetween}');
+                    $('input[name="checkbox4"]').prop("checked", searchOption.searchStatus);
+                   
+                    isOptionSave = true;
+                    // Scale
+                    if(daysBetween<0)
+                    {
+                        $("#select-01 option").each(function() {
+                            if ($(this).text() == 'Month Scale') {
+                                $(this).attr("selected", true);
+                            }
+                        });
+                    }
+                    else if(daysBetween>=0 && daysBetween<=30)
+                    {
+                        $("#select-01 option").each(function() {
+                            if ($(this).text() == 'Day scale') {
+                                $(this).attr("selected", true);
+                            }
+                        });
+                    }
+                    else if(daysBetween>=31 && daysBetween<=50)
+                    {
+                        $("#select-01 option").each(function() {
+                            if ($(this).text() == 'Week scale') {
+                                $(this).attr("selected", true);
+                            }
+                        });
+                    }
+                    else if(daysBetween>=51 && daysBetween<=120)
+                    {
+                        $("#select-01 option").each(function() {
+                            if ($(this).text() == 'Month scale') {
+                                $(this).attr("selected", true);
+                            }
+                        });
+                    }
+                    else if(daysBetween>=120 && daysBetween<=360)
+                    {
+                        $("#select-01 option").each(function() {
+                            if ($(this).text() == 'Quarter scale') {
+                                $(this).attr("selected", true);
+                            }
+                        });
+                    }
+                    else if(daysBetween>=360)
+                    {
+                        $("#select-01 option").each(function() {
+                            if ($(this).text() == 'Year scale') {
+                                $(this).attr("selected", true);
+                            }
+                        });
+                    }
+                    
+                    
+                    // My Tasks
+                    $('input[name="checkbox2"]').prop("checked", searchOption.myTasks);
+                        isMyTask = searchOption.myTasks;                        
+                        
+                    }
+                
+                
+                if({!isLex}){
+                    // set some styles
+                    $("#gantt_here").css('height', (window.innerHeight-150) + 'px');
+                } else {
+                    if (Boolean(parent) &&
+                        Boolean(parent.document) &&
+                        Boolean(parent.document.getElementById('ganttFrame'))) {
+                        
+                        var heightVal = parseInt(parent.document.getElementById('ganttFrame').height.replace('px', ''));
+                        $("#gantt_here").css('height', (heightVal - 130) + 'px');   
+                    } else {
+                        $("#gantt_here").css('height', (window.innerHeight - 230) + 'px');　　
+                    }
+                }
+                
+                setScaleConfig($('#select-01 option:selected').val());
+               
+                gantt.templates.tooltip_text = function(start, end, task){
+                    var taskId = new String(task.id);
+                    if(taskId.indexOf("prj_") <= -1 && taskId.indexOf("phase_") <= -1){
+                        var sdt = gantt.getTask(taskId).start_date;
+                        var edt = gantt.getTask(taskId).end_date;
+                        
+                        if(gantt.getState().min_date > sdt || gantt.getState().max_date < edt){ 
+                            return "<div style=\"color:red;\"><b>This task can't edit since Start Date or End Date value is out of range.</b></div>";
+                        }
+                        return;    
+                    } else {
+                        return;
+                    }
+                };
+                gantt.config.tooltip_hide_timeout = 2000;
+                
+                if({!(existProject)}){
+                    gantt.init("gantt_here");
+                }
+               
+                gantt.config.grid_width = 800;
+                
+                gantt.config.scroll_on_click = true;
+                gantt.config.drag_progress = false;
+                gantt.config.drag_links = false;
+               
+                gantt.config.keep_grid_width = false;
+                gantt.config.grid_resize = true;
+                
+                gantt.setSizes();
+                
+                gantt.locale.labels["column_text"] = "Name";
+                gantt.locale.labels["column_start_date"] = "Start Date";
+                gantt.locale.labels["section_description"] = "Name";
+                gantt.locale.labels["section_time"] = "Duration";
+                gantt.locale.labels["section_users"] = "Members";
+               
+                gantt.parse(tasks);
+                
+                gantt.eachTask(function(task){
+                    console.log("in each task"+task.id);
+                    if (minDt == null || minDt > task.start_date) {
+                        minDt = task.start_date;
+                    }
+                    if (maxDt == null || maxDt < task.end_date) {
+                        maxDt = task.end_date;
+                    }
+                    
+                    task.$open = true;
+                   
+                    var taskId = new String(task.id);
+                   
+                    if(taskId.indexOf("prj_") <= -1 && taskId.indexOf("phase_") <= -1 )
+                    {
+                        if(taskId.indexOf("task_")==0)
+                        {
+                            if(gantt.getTask(gantt.getParent(task.parent)).assigned)
+                            {
+                                task.readonly = false;
+                                if(task.no_date_task){
+                                    task.color = "rgb(200,50,50)";
+                                }
+                            }
+                        }                                         
+                        
+                    } else {
+                        task.readonly = true;
+                        task.color = "rgb(200,200,200)";
+                    }
+                });
+               
+                gantt.render();
+               
+               Closeproject();
+             
+            });
+           
+            function changeScale(name){
+                // scale setting
+                setScaleConfig(name);
+              
+                gantt.render();
+              
+                searchOption.scale = $('#select-01 option:selected').text();               
+            }
+            function setScaleConfig(name) {
+                
+                if(name == "day") {
+                    gantt.config.scale_unit = "day";
+                    gantt.config.step = 1;
+                    gantt.config.min_column_width = 20;
+                    gantt.config.date_scale = "%d";
+                    gantt.templates.date_scale = null;
+                    gantt.config.subscales = [
+                        {unit:"month", step:1, date: "%Y %M"}
+                    ];
+                } else if(name == "week") {
+                    gantt.config.date_scale = null;
+                    gantt.config.scale_unit = "week";
+                    gantt.config.step = 1;
+                    gantt.config.min_column_width = 70;
+                    gantt.templates.date_scale = 
+                        function(date) {
+                            
+                            var dateToStr = gantt.date.date_to_str("%d");
+                            var endDate = gantt.date.add(gantt.date.add(date, 1, "week"), -1, "day");
+                            return dateToStr(date) + " - " + dateToStr(endDate);
+                        };
+                    gantt.config.subscales = [
+                        {unit:"month", step:1, date: "%Y %M"}
+                    ];
+                } else if(name == "month") {
+                    gantt.config.scale_unit = "month";
+                    gantt.config.step = 1;
+                    gantt.config.min_column_width = 70;
+                    gantt.config.date_scale = "%M %Y";
+                    gantt.templates.date_scale = null;
+                    gantt.config.subscales = [];
+                } else if(name == "year") {
+                    gantt.config.scale_unit = "year";
+                    gantt.config.step = 1;
+                    gantt.config.min_column_width = 70;
+                    gantt.config.date_scale = "%Y";
+                    gantt.templates.date_scale = null;
+                    gantt.config.subscales = [];
+                } else if(name == "quarter") {
+                    
+                    gantt.config.min_column_width = 70;
+                    gantt.config.scale_unit = "month";
+                    gantt.config.date_scale = "%M"; 
+                    gantt.config.scale_height = 60;
+                    gantt.config.subscales = [
+                          {unit:"quarter", step:1, template:quarterLabel}
+                    ];
+                }
+            }
+            function quarterLabel(date) {
+               
+                var q_num;
+                var fy = getMonth("{!q1Start}");
+                var month = getConvertMonth(date.getMonth(), fy);
+                    
+                if(month >= getConvertMonth(getMonth("{!q4Start}"), fy)){ 
+                    q_num = 4;
+                }else if(month >= getConvertMonth(getMonth("{!q3Start}"), fy)){ 
+                    q_num = 3;
+                }else if(month >= getConvertMonth(getMonth("{!q2Start}"), fy)){ 
+                    q_num = 2;
+                }else{
+                    q_num = 1;
+                }
+                return date.getFullYear() + " Q" + q_num;
+            }
+            function getConvertMonth(month, fy) {
+                if (month < fy) {
+                    month += 12;
+                }
+                return month;
+            }
+            function getMonth(s) {
+                var start = s.split(",");
+                return parseInt(start[1]) -1;
+            }
+           
+            function displayMyTask() {
+                
+               
+                $("#loading_bg").show();
+               
+                filter_status = true;
+                
+                if(isMyTask){
+                    isMyTask = false;
+                } else {
+                    isMyTask = true;
+                }
+                
+                gantt.render();
+                
+                searchOption.myTasks = isMyTask;               
+            }
+           
+            function refresh()
+            {
+           
+                 location.reload();
+                 
+            }
+            function delete_tasks(taskid)
+            {
+                    if(confirm("Are you sure you want to delete all tasks?"))
+                    {
+                        var task_id=taskid.replace("phase_", "");
+                        GanttPageController_forproject.deletetasks(task_id,function(result, event){
+                            if(event.status) {
+                                console.log("event.status"+event.status);
+                                //delete those tasks from page as well
+                                 var children = gantt.getChildren(taskid);
+                                 for(var i = 0; i < children.length; i++)
+                                 {
+                                     gantt.deleteTask(children[i]);
+                                 }
+                                  $("#delete_img").hide();
+                                  alert("All tasks deleted successfully.");
+                               
+                            }
+                        })
+                        
+                    }
+                    
+                
+            }
+           
+            function applyViewSpan() {
+               
+                $("#loading_bg").show();
+                
+                if(Boolean($("#startDate").val()) && Boolean($("#endDate").val())){
+                
+                    sDtInputVal = new Date(Date.parse($("#startDate").val()));
+                    eDtInputVal = new Date(Date.parse($("#endDate").val()));
+                    
+                } else {
+                    sDtInputVal = null;
+                    eDtInputVal = null;
+                }
+                filter_status = true;
+                
+                RedrawGantt();
+                
+                searchOption.sDate = $("#startDate").val();
+                searchOption.eDate = $("#endDate").val();
+               
+            }
+            
+            function fullOpen() {
+                $("#loading_bg").show();
+                gantt.eachTask(function(task){
+                    task.$open = true;
+                });
+                gantt.render();
+            }
+           
+            function Closeproject() {
+                $("#loading_bg").show();
+                gantt.eachTask(function(task){
+                 var taskId=task.id;
+                  
+                  if(taskId.indexOf("prj_")!=0 )
+                  {
+                      task.$open = false;
+                  }
+                  
+                  else
+                  {
+                       task.$open = true;
+                  }
+                   
+                });
+                gantt.render();
+            }
+            function fullClose() {
+                $("#loading_bg").show();
+                gantt.eachTask(function(task){
+                task.$open = false;
+                
+                });
+                gantt.render();
+            }
+            
+            function RedrawGantt() {
+               
+                gantt.clearAll();
+                
+                $(".datepicker").datepicker();
+                var date_to_str = gantt.date.date_to_str(gantt.config.task_date);
+ 
+                var id = gantt.addMarker({ start_date: new Date(), css: "today",text: "Today", title:date_to_str( new Date())});
+                setInterval(function(){
+                    var today = gantt.getMarker(id);
+                    today.start_date = new Date();
+                    today.title = date_to_str(today.start_date);
+                    gantt.updateMarker(id);
+                }, 1000*60);
+                
+                tasks = {data : $.parseJSON($('#ganttPage\\:form\\:ganttDatas').val())};
+                gantt.parse(tasks);
+                
+                var minDt = null;
+                var maxDt = null;
+                
+                gantt.eachTask(function(task){
+                    
+                    if (minDt == null || minDt > task.start_date) {
+                        minDt = task.start_date;
+                    }
+                    if (maxDt == null || maxDt < task.end_date) {
+                        maxDt = task.end_date;
+                    }
+                    
+                    task.$open = openMap[task.id];
+                    
+                    var taskId = new String(task.id);
+                   if(taskId.indexOf("prj_") <= -1 && taskId.indexOf("phase_") <= -1 )
+                    {
+                        if(taskId.indexOf("task_")==0)
+                        {
+                            if(gantt.getTask(gantt.getParent(task.parent)).assigned)
+                            {
+                                task.readonly = false;
+                                if(task.no_date_task){
+                                    task.color = "rgb(200,50,50)";
+                                }
+                            }
+                        }
+                      
+                    } else {
+                        task.readonly = true;
+                        task.color = "rgb(200,200,200)";
+                    }
+                });
+                
+               
+                openMap = {};
+                
+                gantt.render();
+                
+                if(selected_task != null){
+                    gantt.scrollTo(scroll_state.x, scroll_state.y);
+                    gantt.selectTask(selected_task);
+                }
+                scroll_state = null;
+                selected_task = null;
+                
+                if($('#ganttPage\\:form\\:saveResult').val() == "success"){
+                    // Nothing to do
+                    console.log("redraw succeeded");
+                } else {
+                    // output Error Messages
+                    gantt.message({
+                        type : "error",
+                        text : $('#ganttPage\\:form\\:saveResult').val()
+                    });
+                }
+               
+                if(filter_status){
+                    fullOpen();
+                }
+                filter_status = false;
+                
+                              
+            }
+            
+            // Change folder icon
+           gantt.templates.grid_folder = function(item) {
+                var imgUrl = item.photoUrl;
+                var itemId = item.id;
+                var userName = item.helpText;
+                var signal = item.signalUrl;
+                var health_img=item.health_icon;
+                var list_string=health_img.split(" ");
+                var img_src=list_string[1].split("\"");
+                
+                if( health_img !=null)
+                {
+                      if(itemId.indexOf("task_")==0 )
+                      {
+                          var istask_complete=item.iscomplete;
+                          if(istask_complete)
+                                return "<div class='gantt_tree_icon'><input type='checkbox' checked name='istask_complete' disabled></div>";
+                          else
+                                return "<div class='gantt_tree_icon'><input type='checkbox' name='istask_complete' disabled></div>";
+                      }
+                      
+                      else
+                      {
+                          return "<div class='gantt_tree_icon ' style='margin:1px 3px;'><img style='height:26px; width:26px;' src='" + img_src[1]+ "'></div>";
+                      }
+                      
+                }
+                else
+                {
+                      return "<div class='gantt_tree_icon gantt_file'></div>";
+                }
+               
+            };
+            
+            //Change file icon
+         gantt.templates.grid_file = function(item){
+                console.log("inside file:"+item.id);
+                var imgUrl = item.photoUrl;
+                var itemId = item.id;
+                var health_img=item.health_icon;
+                var list_string=health_img.split(" ");
+                var img_src=list_string[1].split("\"");
+                var userName = item.helpText;
+                var istask_complete=item.iscomplete;
+                console.log("itemid:"+itemId );
+                console.log("istask_complete:"+istask_complete);
+                console.log(itemId.indexOf("phase_")+" "+itemId+" "+health_img);
+                if(itemId.indexOf("prj_")==0 && health_img !=null)
+                {
+                        return "<div class='gantt_tree_icon ' style='margin:1px 3px;'><img style='height:26px; width:26px;' src='" + img_src[1]+ "'></div>";
+                }
+                else if(itemId.indexOf("childprj_")==0 && health_img !=null)
+                {
+                         return "<div class='gantt_tree_icon ' style='margin:1px 3px;'><img style='height:26px; width:26px;' src='" + img_src[1]+ "'></div>";
+                }
+                else if(itemId.indexOf("phase_")==0 && health_img !=null)
+                {
+                      return "<div class='gantt_tree_icon ' style='margin:1px 3px;'><img style='height:26px; width:26px;' src='" + img_src[1]+ "'></div>";
+                }
+                else if( itemId.indexOf("task_")==0 && istask_complete!=null)
+                {
+                    if(istask_complete)
+                        return "<div class='gantt_tree_icon'><input type='checkbox' checked name='istask_complete' disabled></div>";
+                     else
+                        return "<div class='gantt_tree_icon'><input type='checkbox' name='istask_complete' disabled></div>";
+                
+                }
+                else
+                {
+                 return "<div class='gantt_tree_icon gantt_file'></div>";
+                }
+                
+            };
+          
+            gantt.date.quarter_start = function(date){
+                gantt.date.month_start(date);
+                var m = date.getMonth(), res_month;
+                
+                var fy = getMonth("{!q1Start}");
+                var month = getConvertMonth(date.getMonth(), fy);
+                    
+                if(month >= getConvertMonth(getMonth("{!q4Start}"), fy)){ 
+                    q_num = getMonth("{!q4Start}");
+                }else if(month >= getConvertMonth(getMonth("{!q3Start}"), fy)){ 
+                    q_num = getMonth("{!q3Start}");
+                }else if(month >= getConvertMonth(getMonth("{!q2Start}"), fy)){ 
+                    q_num = getMonth("{!q2Start}");
+                }else{
+                    q_num = fy;
+                }
+                
+                date.setMonth(q_num);
+                return date;
+            };
+            
+            gantt.config.columns = [
+                {name:"text", tree: true, width:'*',resize: true, template:showDetail},              
+              
+            ];
+            
+             function showDetail(task){
+              var taskId = new String(task.id);
+                var taskName = new String(task.text);
+                var signal = new String(task.signalUrl);
+                var health_img= task.health_icon;
+                var retStr = "";
+                console.log("inside showdetail:"+taskId);
+               if(taskId.indexOf("task_") ==0)
+                {
+                   var phaseobjid=gantt.getParent(task); 
+                   console.log('phaseobjid'+phaseobjid);
+                   phaseobjid=phaseobjid.replace("phase_", "");
+                   var task_id=taskId.replace("task_", "");
+                   var defaultValues = "{Project_Milestone__c: \'"+phaseobjid+"\'}";
+                   var result = "<a  href=\"#\" class=\"column_text\"onclick=\"javascript:sforce.one.navigateToSObject('" + task_id+ "');\">" + taskName + "</a> &nbsp; &nbsp;"+
+                "<img src=\"/resource/PMT_Gantt_Icons/edit_60.png\" onclick=\"javascript:sforce.one.editRecord('"+task_id+"');\" style=\"height: 17px;\">";
+                   
+                return result;
+                }
+                else if(taskId.indexOf("prj_") == 0) 
+                {
+                    var task_id=taskId.replace("prj_", "");
+                    console.log("prj_taskid:"+ task_id);
+                    console.log("prj_taskName2: "+taskName );
+                    var defaultValues = "{Project__c :\'"+ task_id+"\'}";   
+                    return "<span style=\"margin:10px;\">" + taskName +  "</span>"+" &nbsp; &nbsp;" + "<img src=\"/resource/PMT_Gantt_Icons/add_60.png\" onclick=\"javascript:sforce.one.createRecord(\'PMT_Phase__c\',null,"+defaultValues +");\" style=\"height: 17px;\">";
+                                       
+                } 
+                else if(taskId.indexOf("childprj_") == 0) 
+                {
+                    var task_id=taskId.replace("childprj_", "");
+                    console.log("childprj_TaskId:"+ task_id);
+                    console.log("childprj_taskName2: "+taskName );
+                    var defaultValues = "{Project__c :\'"+ task_id+"\'}";  
+                    return "<a style=\"margin:10px;\" href=\"#\" onclick=\"javascript:sforce.one.navigateToSObject('" + taskId.replace("childprj_", "") +  "');\">"+ taskName + "</a> &nbsp; &nbsp;"+
+                "<img src=\"/resource/PMT_Gantt_Icons/edit_60.png\" onclick=\"javascript:sforce.one.editRecord('"+taskId.replace("childprj_", "") + "');\" style=\"height: 17px;\">"+
+                               " &nbsp; &nbsp;" + "<img src=\"/resource/PMT_Gantt_Icons/add_60.png\" onclick=\"javascript:sforce.one.createRecord(\'PMT_Phase__c\',null,"+defaultValues +");\" style=\"height: 17px;\">";
+                                       
+                } 
+                else if(taskId.indexOf("phase_") == 0) 
+                {
+                
+                    var task_id=taskId.replace("phase_", "");
+                    var defaultValues = "{Project_Milestone__c : \'"+task_id+"\'}";
+                    //showing phase name
+                    console.log("task inside phase"+task.istaskpresent);
+                    if(!task.istaskpresent)
+                    {
+                    return "<a style=\"margin:10px;\" href=\"#\" onclick=\"javascript:sforce.one.navigateToSObject('" + taskId.replace("phase_", "") +  "');\">"+ taskName + "</a> &nbsp; &nbsp;"+
+                       "<img src=\"/resource/PMT_Gantt_Icons/edit_60.png\" onclick=\"javascript:sforce.one.editRecord('"+taskId.replace("phase_", "") + "');\" style=\"height: 17px;\">"+
+                "&nbsp; &nbsp;"+"<img src=\"{!URLFOR($Resource.PMT_Gantt_Icons,'/add_60.png')}\" onclick=\"javascript:sforce.one.createRecord(\'PMT_Task__c\',null,"+defaultValues +");\" style=\"height: 17px;\" >";
+                    }
+                    else
+                    {
+                        return "<a style=\"margin:10px;\" href=\"#\" onclick=\"javascript:sforce.one.navigateToSObject('" + taskId.replace("phase_", "") +  "');\">"+ taskName + "</a> &nbsp; &nbsp;"+
+                       "<img src=\"/resource/PMT_Gantt_Icons/edit_60.png\" onclick=\"javascript:sforce.one.editRecord('"+taskId.replace("phase_", "") + "');\" style=\"height: 17px;\">"+
+                        "&nbsp; &nbsp;"+"<img src=\"{!URLFOR($Resource.PMT_Gantt_Icons,'/add_60.png')}\" onclick=\"javascript:sforce.one.createRecord(\'PMT_Task__c\',null,"+defaultValues +");\" style=\"height: 17px;\" >"+
+                "&nbsp; &nbsp;"+"<img class=\"confirm\" src=\"{!URLFOR($Resource.PMT_Gantt_Icons,'/delete_60.png')}\" onclick=\"delete_tasks(\'"+taskId+ "\');\" style=\"height: 17px;\" >";
+                    }
+
+                }
+            }
+            
+            function modalTaskDetail(task_id){
+               
+                $.colorbox(
+                    {
+                        width:"95%",
+                        height:"95%",
+                        iframe:true,
+                        href: "apex/KanbanTaskDetailPage?id=" + task_id + "&nooverride=1",
+                        onLoad: function(){
+                            window.scrollTo(0,0);
+                        }
+                    }
+                );
+            }
+           
+            gantt.addTaskLayer(function draw_deadline(task) {
+                if (task.deadline) {
+                    var el = document.createElement('div');
+                    el.className = 'deadline';
+                    var sizes = gantt.getTaskPosition(task, task.deadline);
+        
+                    el.style.left = sizes.left + 'px';
+                    el.style.top = sizes.top + 'px';
+        
+                    el.setAttribute('title', gantt.templates.task_date(task.deadline));
+                    return el;
+                }
+                return false;
+            });
+            
+            
+            gantt.templates.task_class = function (start, end, task) {
+                if (task.deadline && end.valueOf() > task.deadline.valueOf()) {
+                    return 'overdue';
+                }
+            };
+           
+            gantt.attachEvent("onGanttRender", function(){
+                window.setTimeout(function(){
+                    $("#loading_bg").hide();
+                } , 300);
+                
+                if (defaultMinDate == null) {
+                    defaultMinDate = gantt.getState().min_date;
+                }
+                if (defaultMaxDate == null) {
+                    defaultMaxDate = gantt.getState().max_date;
+                }
+            });
+           
+            gantt.attachEvent("onBeforeTaskDrag", function(id, mode, e){
+                var sdt = gantt.getTask(id).start_date;
+                var edt = gantt.getTask(id).end_date;
+                
+                if(gantt.getState().min_date > sdt || gantt.getState().max_date < edt){
+                    gantt.alert({
+                        title: "caution",
+                        type: "alert-error",
+                        text: "This task can't edit since Start Date or End Date value is out of range."
+                    });
+                    return false;      
+                }
+                return true;          
+            });
+            
+            gantt.attachEvent("onTaskDblClick", function(id,e){
+                // do nothing
+            });
+            
+            
+            gantt.attachEvent("onBeforeTaskUpdate", function(id, task) {
+                $("#loading_bg").show();
+                selected_task = id;
+                scroll_state = gantt.getScrollState();
+                gantt.eachTask(function(task){
+                    openMap[task.id] = task.$open;
+                    
+                    var taskId = new String(task.id);
+                    if(taskId.indexOf("prj_") <= -1 && taskId.indexOf("phase_") <= -1 )
+                    {//ckeck if parenttask
+                        if(taskId.indexOf("task_")==0)
+                        {
+                            if(gantt.getTask(gantt.getParent(task.parent)).assigned)
+                            {
+                                task.readonly = false;
+                                if(task.no_date_task){
+                                    task.color = "rgb(200,50,50)";
+                                }
+                            }
+                        }
+                       
+                    } else {
+                        task.readonly = true;
+                        task.color = "rgb(200,200,200)";
+                    }
+                });
+            });
+            // Task update on SFDC side
+            gantt.attachEvent("onAfterTaskUpdate", function(id, task) {
+                
+                var year = task.start_date.getFullYear();
+                var month = task.start_date.getMonth()+1;
+                var day = task.start_date.getDate();
+                var sdate = new String();
+                sdate = year + "-" + month + "-" + day;
+                
+                updTask(task.id, sdate, task.duration);
+               
+                
+            });
+           
+            
+            gantt.attachEvent("onTaskLoading", function(task){
+                if(task.deadline)
+                    task.deadline = gantt.date.parseDate(task.deadline, "xml_date");
+                return true;
+            });
+            
+            //Filtering before task display
+            gantt.attachEvent("onBeforeTaskDisplay", function(id, task){
+              
+                if(isMyTask){
+                    
+                    if(!task.isCurrentUserTask){
+                    console.log('inside is Mytask:'+task.id);
+                        return false;
+                    }
+                }
+                    
+                return true;
+            });
+            
+        </script>
+    </body>
+    
+</apex:page>

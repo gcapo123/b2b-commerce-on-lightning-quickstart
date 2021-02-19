@@ -1,0 +1,125 @@
+/******************************************************
+ * CSS override for CloudCraze.
+ * Override any CSS provided by OOTB CloudCraze below
+*******************************************************/
+.header.cc_header{
+	height: 80px;
+}
+
+.cc_store_logo_img {
+	background: url("../images/cirrus_logo1.png") no-repeat;
+	background-size: contain;
+	height: 70px;
+	width: 200px;
+}
+
+.header .navbar-inverse{
+	background: #ffffff;
+	background-position: top;
+	width: 100%;
+}
+
+/*FOOTER*/
+div.container-fluid.navbar-inverse{
+	background: #9CC363;
+	background-position:center;
+	width: 100%;
+}
+
+.navbar-inverse .navbar-nav>li>a,.navbar-inverse .navbar-link,.navbar-default{
+	color: #000000;
+}
+.navbar-inverse .navbar-nav>li>a:hover,.navbar-inverse .navbar-link:hover,.navbar-default{
+	color: #D7DADE;
+
+}
+
+.navbar-default .navbar-nav>li>a {
+    color: #ffffff;
+	}
+
+.navbar-default .navbar-nav>li>a:hover{
+	color:#9CC363;
+}
+
+.navbar-inverse .navbar-nav>li>a:hover,.navbar-inverse .navbar-link:hover{
+	text-decoration: underline;
+}
+
+.navbar-default{
+	background: #4C3671;
+	background-position:center;
+	width: 100%;
+}
+
+/*************************************************************************************************************/
+p.baseprice.cc_baseprice,.cc_base_price_value {
+    text-decoration: line-through;
+}
+
+.promotion-box-LeftNav .panel-default,.promotion-box-RightNav .panel-default{
+    border: none;
+}
+.cc_promo .panel-body {
+		padding: 0px;
+}
+
+.panel.panel-default.cc_panel.cc_product_grid_item_panel {
+    height: 380px;
+}
+
+.panel.panel-default.cc_panel.cc_product_grid_item_panel .panel-heading h6{
+	font-size: 14px;
+}
+
+img.img-responsive.img-rounded.cc_promo_img {
+    margin: 0 auto;
+		width: 100%;
+}
+
+/******************************************************
+* PRODUCT DETAIL PAGE
+*******************************************************/
+
+.prodDetailContainer .img-responsive {
+    max-height: 200px;
+}
+
+.cc_product_detail_photo_container .cc_main_prod_image.img-thumbnail {
+    height: 150px;
+    width: 100%;
+    overflow: hidden;
+}
+
+.cc_product_detail_photo_container .cc_main_prod_image.img-thumbnail img {
+    max-height: 100%;
+    margin: 0 auto;
+}
+
+.cc_product_detail_photo_container .thumbnail {
+   height: 50px;
+   width: 50px;
+   display: inline-block;
+   margin: 5px;
+   }
+
+.cc_product_detail_photo_container .thumbnail:hover {
+    cursor: pointer;
+}
+
+.cc_product_detail_container img {
+    max-width: 100%;
+}
+
+.cc_tab-content {
+    margin-top: 10px;
+}
+
+.cc_product_detail #CCQtyBlock > div {
+    display: inline-block;
+    vertical-align: top;
+}
+
+.cc_product_detail #CCQtyBlock input.cc_entry {
+    height: 30px;
+}
