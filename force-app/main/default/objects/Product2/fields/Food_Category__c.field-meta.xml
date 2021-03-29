@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Food_Category__c</fullName>
+    <externalId>false</externalId>
+    <label>Commercial Category</label>
+    <required>false</required>
+    <trackFeedHistory>false</trackFeedHistory>
+    <trackHistory>false</trackHistory>
+    <type>MultiselectPicklist</type>
+    <valueSet>
+        <restricted>true</restricted>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+            <value>
+                <fullName>Cheese</fullName>
+                <default>false</default>
+                <label>Cheese</label>
+            </value>
+            <value>
+                <fullName>Drink</fullName>
+                <default>false</default>
+                <label>Drink</label>
+            </value>
+            <value>
+                <fullName>Food</fullName>
+                <default>false</default>
+                <label>Food</label>
+            </value>
+            <value>
+                <fullName>Meat</fullName>
+                <default>false</default>
+                <label>Meat</label>
+            </value>
+            <value>
+                <fullName>Pastries</fullName>
+                <default>false</default>
+                <label>Pastries</label>
+            </value>
+            <value>
+                <fullName>Wines</fullName>
+                <default>false</default>
+                <label>Wines</label>
+            </value>
+        </valueSetDefinition>
+    </valueSet>
+    <visibleLines>6</visibleLines>
+</CustomField>

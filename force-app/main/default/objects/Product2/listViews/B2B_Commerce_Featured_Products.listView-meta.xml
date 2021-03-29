@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ListView xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>B2B_Commerce_Featured_Products</fullName>
+    <columns>PRODUCT2.NAME</columns>
+    <columns>PRODUCT2.DESCRIPTION</columns>
+    <columns>PRODUCT2.SKU</columns>
+    <columns>Image_URL__c</columns>
+    <filterScope>Everything</filterScope>
+    <filters>
+        <field>PRODUCT2.SKU</field>
+        <operation>contains</operation>
+        <value>A-1000,EB-5000,B-1000,CILY50P</value>
+    </filters>
+    <label>B2B Commerce Featured Products</label>
+</ListView>

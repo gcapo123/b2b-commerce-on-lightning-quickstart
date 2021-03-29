@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Technical_Feature__c</fullName>
+    <externalId>false</externalId>
+    <label>Technical Feature</label>
+    <required>false</required>
+    <trackFeedHistory>false</trackFeedHistory>
+    <trackHistory>false</trackHistory>
+    <type>MultiselectPicklist</type>
+    <valueSet>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+            <value>
+                <fullName>Compressor hermetic reciprocating</fullName>
+                <default>false</default>
+                <label>Compressor hermetic reciprocating</label>
+            </value>
+            <value>
+                <fullName>Electric controller</fullName>
+                <default>false</default>
+                <label>Electric controller</label>
+            </value>
+            <value>
+                <fullName>Electric defrost</fullName>
+                <default>false</default>
+                <label>Electric defrost</label>
+            </value>
+            <value>
+                <fullName>Free maintenance condenser</fullName>
+                <default>false</default>
+                <label>Free maintenance condenser</label>
+            </value>
+            <value>
+                <fullName>High efficiency fans</fullName>
+                <default>false</default>
+                <label>High efficiency fans</label>
+            </value>
+            <value>
+                <fullName>Hot-gas defrosting system</fullName>
+                <default>false</default>
+                <label>Hot-gas defrosting system</label>
+            </value>
+            <value>
+                <fullName>Incorporated condensing unit</fullName>
+                <default>false</default>
+                <label>Incorporated condensing unit</label>
+            </value>
+            <value>
+                <fullName>LED lighting</fullName>
+                <default>false</default>
+                <label>LED lighting</label>
+            </value>
+            <value>
+                <fullName>Manual defrost</fullName>
+                <default>false</default>
+                <label>Manual defrost</label>
+            </value>
+            <value>
+                <fullName>Off-cycle defrost</fullName>
+                <default>false</default>
+                <label>Off-cycle defrost</label>
+            </value>
+            <value>
+                <fullName>On board condenser</fullName>
+                <default>false</default>
+                <label>On board condenser</label>
+            </value>
+            <value>
+                <fullName>Propane refrigerant gas (R290)</fullName>
+                <default>false</default>
+                <label>Propane refrigerant gas (R290)</label>
+            </value>
+            <value>
+                <fullName>R-134a</fullName>
+                <default>false</default>
+                <label>R-134a</label>
+            </value>
+            <value>
+                <fullName>R404a – 400V/3PH/50Hz</fullName>
+                <default>false</default>
+                <label>R404a – 400V/3PH/50Hz</label>
+            </value>
+            <value>
+                <fullName>R542a</fullName>
+                <default>false</default>
+                <label>R542a</label>
+            </value>
+            <value>
+                <fullName>R600 / Isobutane</fullName>
+                <default>false</default>
+                <label>R600 / Isobutane</label>
+            </value>
+            <value>
+                <fullName>R600a</fullName>
+                <default>false</default>
+                <label>R600a</label>
+            </value>
+            <value>
+                <fullName>Semi-hermetic reciprocating compressor</fullName>
+                <default>false</default>
+                <label>Semi-hermetic reciprocating compressor</label>
+            </value>
+            <value>
+                <fullName>Static</fullName>
+                <default>false</default>
+                <label>Static</label>
+            </value>
+            <value>
+                <fullName>Ventilated</fullName>
+                <default>false</default>
+                <label>Ventilated</label>
+            </value>
+        </valueSetDefinition>
+    </valueSet>
+    <visibleLines>10</visibleLines>
+</CustomField>

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ListView xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Subscription_Fields</fullName>
+    <columns>PRODUCT2.NAME</columns>
+    <columns>SBQQ__SubscriptionPricing__c</columns>
+    <columns>SBQQ__SubscriptionTerm__c</columns>
+    <columns>SBQQ__SubscriptionType__c</columns>
+    <columns>SBQQ__SubscriptionPercent__c</columns>
+    <columns>SBQQ__SubscriptionBase__c</columns>
+    <filterScope>Everything</filterScope>
+    <filters>
+        <field>PRODUCT2.RECORD_TYPE</field>
+        <operation>equals</operation>
+        <value>Product2.Master</value>
+    </filters>
+    <label>Subscription Fields</label>
+    <language>en_US</language>
+</ListView>

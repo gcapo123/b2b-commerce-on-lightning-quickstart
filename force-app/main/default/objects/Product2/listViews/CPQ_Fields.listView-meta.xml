@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ListView xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>CPQ_Fields</fullName>
+    <columns>PRODUCT2.NAME</columns>
+    <columns>SBQQ__ConfigurationType__c</columns>
+    <columns>SBQQ__ConfigurationEvent__c</columns>
+    <columns>SBQQ__Component__c</columns>
+    <columns>SBQQ__Hidden__c</columns>
+    <columns>SBQQ__NonDiscountable__c</columns>
+    <columns>SBQQ__PriceEditable__c</columns>
+    <columns>SBQQ__PricingMethod__c</columns>
+    <columns>SBQQ__AssetConversion__c</columns>
+    <columns>SBQQ__DiscountSchedule__c</columns>
+    <columns>SBQQ__PricingGuidance__c</columns>
+    <filterScope>Everything</filterScope>
+    <filters>
+        <field>PRODUCT2.RECORD_TYPE</field>
+        <operation>equals</operation>
+        <value>Product2.Master</value>
+    </filters>
+    <label>CPQ Fields</label>
+    <language>en_US</language>
+</ListView>

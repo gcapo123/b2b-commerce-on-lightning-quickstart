@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>SBQQ__Configurator_View_must_be_Wizard</fullName>
+    <active>false</active>
+    <description>In order to use the Option Layout field, the Configurator view in Custom Settings must be set to Wizard. Otherwise, the Option Layout will default to a &apos;Section&apos;.</description>
+    <errorConditionFormula>AND(ISNEW(), $Setup.SBQQ__GeneralSettings__c.SBQQ__ConfiguratorView__c = &apos;Classic&apos;, NOT( OR(ISPICKVAL(SBQQ__OptionLayout__c, &apos;&apos;), ISPICKVAL(SBQQ__OptionLayout__c, &apos;Sections&apos;)) ))</errorConditionFormula>
+    <errorMessage>In order to use the Option Layout field, the Configurator view in Custom Settings must be set to Wizard. Otherwise, the Option Layout will default to a &apos;Section&apos;.</errorMessage>
+</ValidationRule>

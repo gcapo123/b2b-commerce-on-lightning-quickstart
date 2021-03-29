@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ListView xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>B2B_Commerce_Service_Products</fullName>
+    <columns>PRODUCT2.NAME</columns>
+    <columns>PRODUCT2.DESCRIPTION</columns>
+    <columns>PRODUCT2.SKU</columns>
+    <columns>Image_URL__c</columns>
+    <filterScope>Everything</filterScope>
+    <filters>
+        <field>PRODUCT2.SKU</field>
+        <operation>contains</operation>
+        <value>INST-100,M-1000,L-1000</value>
+    </filters>
+    <label>B2B Commerce Service Products</label>
+</ListView>
