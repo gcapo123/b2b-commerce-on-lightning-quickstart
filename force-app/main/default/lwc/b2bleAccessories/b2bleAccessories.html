@@ -1,0 +1,21 @@
+<template>
+    <template if:true={products.data}>
+        <h1><u>Available Accessories</u></h1>
+        <div class="slds-grid slds-wrap">
+            <template for:each={products.data} for:item="part">
+                <div key={part.productId} class="slds-col slds-size_1-of-1">
+                    <c-b2ble-accessories-display
+                        recordid={part.detailInfo.id}
+                        name={part.detailInfo.fields.Name}
+                        price={part.priceInfo.unitPrice}
+                        currency={part.priceInfo.currency}
+                        img={part.detailInfo.defaultImage.url}
+                        onaddtocart={addToCart}
+                    >
+
+                    </c-b2ble-accessories-display>
+                </div>
+            </template>
+        </div>
+    </template>
+</template>
