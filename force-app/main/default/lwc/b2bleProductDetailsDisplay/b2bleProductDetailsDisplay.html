@@ -1,0 +1,193 @@
+<template>
+    <lightning-breadcrumbs class="slds-p-bottom_medium">
+        <template for:each={_resolvedCategoryPath} for:item="level">
+            <lightning-breadcrumb
+                key={level.name}
+                label={level.name}
+                href={level.url}
+            >
+            </lightning-breadcrumb>
+        </template>
+    </lightning-breadcrumbs>
+    <div class="product-information">
+        <div class="image slds-m-right_small">
+            <figure
+                class="slds-p-around_xx-small slds-border_top slds-border_right slds-border_bottom slds-border_left"
+            >
+                <img src={image.url} alt={image.alternativeText} />
+            </figure>
+        </div>
+        <div class="details-area">
+            <div class="heading">
+                <h2 class="slds-text-heading_medium">{name}</h2>
+                <div class="slds-p-top_x-small">SKU: {sku}</div>
+                <div class="slds-p-bottom_medium">
+                    <template for:each={_displayableFields} for:item="field">
+                        <div
+                            key={field.id}
+                            if:true={field.value}
+                            class="slds-grid slds-p-top_x-small"
+                        >
+                            <p class="slds-m-right_xx-small">{field.name}:</p>
+                            <lightning-formatted-rich-text
+                                value={field.value}
+                            ></lightning-formatted-rich-text>
+                        </div>
+                    </template>
+                </div>
+                <!--
+                <div if:true={inStock} class="slds-p-bottom_small">
+                    <lightning-icon
+                        icon-name="utility:check"
+                        variant="success"
+                    ></lightning-icon>
+                    <span class="slds-p-horizontal_small">In stock</span>
+                </div>
+                <div if:false={inStock} class="slds-p-bottom_small">
+                    <lightning-icon
+                        icon-name="utility:ban"
+                        variant="error"
+                    ></lightning-icon>
+                    <span class="slds-p-horizontal_small">Out of stock</span>
+                </div>
+            -->
+            </div>
+            <div class="price">
+                <span if:false={hasPrice}>Price Unavailable</span>
+                <span>Your price: </span>
+                <lightning-formatted-number
+                    if:true={hasPrice}
+                    currency-code={price.currency}
+                    format-style="currency"
+                    value={price.negotiated}
+                >
+                </lightning-formatted-number>
+            </div>
+            <div class="slds-p-vertical_small">
+                <lightning-layout vertical-align="end">
+                    <lightning-layout-item size="2">
+                        <lightning-input
+                            type="number"
+                            name="quantity"
+                            label="qty"
+                            value="1"
+                            min="1"
+                            max="9999"
+                            step="1"
+                            message-when-step-mismatch="Enter a whole number."
+                            oncommit={handleQuantityChange}
+                        >
+                        </lightning-input>
+                    </lightning-layout-item>
+                    
+                    <!--
+                    <lightning-layout-item>
+                        <lightning-button
+                            label="Add to Cart"
+                            variant="brand"
+                            class="slds-m-left_x-small"
+                            disabled={_isAddToCartDisabled}
+                            onclick={notifyAddToCart}
+                        >
+                        </lightning-button>
+                    </lightning-layout-item>
+                    -->
+                    <lightning-layout-item>
+                        <lightning-button
+                            label="Add to List"
+                            variant="brand"
+                            class="slds-m-left_x-small"
+                            onclick={notifyCreateAndAddToList}
+                        >
+                        </lightning-button>
+                    </lightning-layout-item>
+                </lightning-layout>
+            </div>
+            <div>
+                <div class="configGroup">
+                    <h1>Select Antennas</h1>
+                    <div class="slds-grid slds-wrap">
+                        <div class="slds-col slds-size_4-of-12">
+                            <img src="https://res.cloudinary.com/dmrxbmaty/image/upload/v1615204771/Ceragon/2ft_antenna_zwbauk.png" />
+                        </div>
+                        <div class="slds-col slds-size_8-of-12">
+                            <a href="https://sdodemo-main-166ce2cf6b6-172-177c8ff42d7.force.com/B2BLightning/s/product/am-2ft-11r-antenna/01t09000000lv9AAAQ">
+                                <span>Am 2ft 11R</span>
+                            </a>
+                            <p>Price: 219.00€</p>
+                            <lightning-input
+                                        type="number"
+                                        name="quantity"
+                                        label="qty"
+                                        value="0"
+                                        min="0"
+                                        max="9999"
+                                        step="1"
+                                        message-when-step-mismatch="Enter a whole number."
+                                        oncommit={handleAntenna2FtChanged}
+                                    >
+                            </lightning-input>
+                        </div>
+                        <div class="slds-col slds-size_4-of-12">
+                            <img src="https://res.cloudinary.com/dmrxbmaty/image/upload/v1615204771/Ceragon/3ft_antenna_zpuvzw.png" />
+                        </div>
+                        <div class="slds-col slds-size_8-of-12">
+                            <a href="https://sdodemo-main-166ce2cf6b6-172-177c8ff42d7.force.com/B2BLightning/s/product/am-3ft-11r-antenna/01t09000000lv9BAAQ">
+                                <span>Am 3ft 11R</span>
+                            </a>
+                            <p>Price: 284.00€</p>
+                            <lightning-input
+                                        type="number"
+                                        name="quantity"
+                                        label="qty"
+                                        value="0"
+                                        min="0"
+                                        max="9999"
+                                        step="1"
+                                        message-when-step-mismatch="Enter a whole number."
+                                        oncommit={handleAntenna3FtChanged}
+                                    >
+                            </lightning-input>
+                        </div>
+                    </div>
+                </div>
+                <div class="configGroup">
+                    <h1>Pick a Software</h1>
+                    <div>
+                        <lightning-radio-group name="radioGroup"
+                          label="Available Softwares"
+                          options={softwareOptions}
+                          value={value}
+                          type="radio"
+                          onchange={handleSwChange}
+                          required></lightning-radio-group>
+                    </div>
+                </div>
+                <div class="configGroup">
+                    <template if:true={isAddAllToCartDisabled}>
+                        <div class="slds-p-around_medium lgc-bg">
+                            <p class="slds-truncate" title="Validation Message">You must ad at least <b>2 antennas</b> and a <b>software</b> to add this product to the cart</p>
+                        </div>
+                        <br/>
+                    </template>
+                    <lightning-button variant="brand" label="Add all to cart" title="Add all to cart" onclick={addAllToCart} disabled={isAddAllToCartDisabled} class="slds-m-left_x-small"></lightning-button>
+                </div>
+            </div>
+            <!--
+            <lightning-accordion
+                active-section-name="description"
+                allow-multiple-sections-open
+            >
+                <lightning-accordion-section
+                    name="description"
+                    label="Description"
+                >
+                    <lightning-formatted-rich-text
+                        value={description}
+                    ></lightning-formatted-rich-text>
+                </lightning-accordion-section>
+            </lightning-accordion>
+            -->
+        </div>
+    </div>
+</template>
